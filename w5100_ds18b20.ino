@@ -27,7 +27,7 @@ byte mac[] = {
 char serverName[] = "165.227.163.172";
 
 // change to your server's port
-int serverPort = 3000;
+int serverPort = 80;
 
 // change to the page on that server
 char pageName[] = "/sensor/new";
@@ -63,7 +63,30 @@ void setup() {
   Serial.println(F("Ready"));
   sensors.begin();
   sensors.getAddress(Thermometer1, 0);//получить адрес №1
-  sensors.setResolution(Thermometer1, 11);
+  sensors.setResolution(Thermometer1, 10);
+      sensors.requestTemperatures(); 
+    // params must be url encoded.
+    float t = sensors.getTempCByIndex(0);
+    float h = sensors.getTempFByIndex(0);
+    Serial.println();
+    Serial.print("Temperature: "); 
+    Serial.print(t);
+    Serial.println(" *C");
+    
+    char str_temp1[6];
+    char str_temp2[6];
+    /* 4 is mininum width, 2 is precision; float value is copied onto str_temp*/
+    dtostrf(t, 5, 2, str_temp1);
+    dtostrf(h, 5, 2, str_temp2);
+
+    String PostData="sensor="+sensor+"&param1="+String(str_temp1)+"&param2="+String(str_temp2);
+    PostData.toCharArray(params, 64);
+    
+//    sprintf(params,"{t:%s,h:%s}",str_temp1,str_temp2);     
+    
+    if(!postPage(serverName,serverPort,pageName,params)) Serial.print(F("Fail "));
+    else Serial.print(F("Pass "));
+  
 }
 
 void loop()
